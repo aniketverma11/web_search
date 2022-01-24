@@ -1,0 +1,73 @@
+<html>
+<head>
+    <meta charset="utf-8">
+ <title>Autocomplete</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  </head>
+<body>
+<h1>search app</h1>
+<form class="form-inline">
+ <div class="form-group">
+     {{form.query(class="form-control")}}
+   </div>
+   <button type="submit" class="btn btn-info">Submit</button>
+</form>
+<div id="result"></div>
+<script>
+$(document).ready(function(){
+
+ var queries=[];
+
+ function loadqueries(){
+  $.getJSON('/generate_data', function(data, status, xhr){
+   for (var i = 0; i < data.length; i++ ) {
+    queries.push(data[i].address);
+   }
+ });
+ };
+ loadqueries();
+ 
+ $('#query').autocomplete({
+  source: queries, 
+ }); 
+ 
+ $('form').on('submit', function(e){
+  $.ajax({
+   data: {
+    country:$('#query').val()
+   },
+   type: 'POST',
+   url : '/process'
+  })
+  .done(function(data){ 
+   if (data.error){
+    $('#result').text(data.error).show();
+   }
+   else {
+    $('#result').html(data.country).show()
+   }
+  })
+  e.preventDefault();
+ });
+}); 
+</script>
+<style>
+.form-control {
+    display: block;
+    width:300px;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn {padding: .375rem .75rem; margin-top:10px;}
+</style>
+  </body>
+</html>
